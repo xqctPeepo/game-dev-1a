@@ -228,7 +228,7 @@ const ASSETS = {
         },
         {
             name: "Tech Girl",
-            model: "https://raw.githubusercontent.com/EricEisaman/game-dev-1a/main/assets/models/characters/techGirl/tech_girl.glb",
+            model: "https://raw.githubusercontent.com/EricEisaman/game-dev-1a/main/assets/models/characters/techGirl/tech_girl_2.glb",
             animations: {
                 idle: "idle",
                 walk: "run",
@@ -240,7 +240,7 @@ const ASSETS = {
         },
         {
             name: "Zombie",
-            model: "https://raw.githubusercontent.com/EricEisaman/game-dev-1a/main/assets/models/characters/zombie/zombie.glb",
+            model: "https://raw.githubusercontent.com/EricEisaman/game-dev-1a/main/assets/models/characters/zombie/zombie_2.glb",
             animations: {
                 idle: "Idle",
                 walk: "Run_InPlace",
