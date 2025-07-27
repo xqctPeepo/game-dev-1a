@@ -4257,19 +4257,30 @@ class CharacterController {
         currentVelocity: BABYLON.Vector3,
         characterOrientation: BABYLON.Quaternion
     ): BABYLON.Vector3 {
-        const speed = this.boostActive ? CONFIG.CHARACTER.SPEED.IN_AIR * CONFIG.CHARACTER.SPEED.BOOST_MULTIPLIER : CONFIG.CHARACTER.SPEED.IN_AIR;
-        const desiredVelocity = this.inputDirection.scale(speed).applyRotationQuaternion(characterOrientation);
-        const outputVelocity = this.characterController.calculateMovement(
-            deltaTime, forwardWorld, upWorld, currentVelocity,
-            BABYLON.Vector3.Zero(), desiredVelocity, upWorld
-        );
+        let outputVelocity = currentVelocity.clone();
+
+        // If boost is active, allow input-based velocity modification while in air
+        if (this.boostActive) {
+            const speed = CONFIG.CHARACTER.SPEED.IN_AIR * CONFIG.CHARACTER.SPEED.BOOST_MULTIPLIER;
+            const desiredVelocity = this.inputDirection.scale(speed).applyRotationQuaternion(characterOrientation);
+            outputVelocity = this.characterController.calculateMovement(
+                deltaTime, forwardWorld, upWorld, currentVelocity,
+                BABYLON.Vector3.Zero(), desiredVelocity, upWorld
+            );
+        } else {
+            // Maintain initial jump velocity while in air - no input-based velocity modification
+            // Only apply gravity and minimal air resistance to preserve realistic physics
+        }
 
         // Add minimal air resistance to reduce sliding in air
         const airResistance = 0.98; // Reduced air resistance (was 0.95)
         outputVelocity.scaleInPlace(airResistance);
 
+        // Preserve vertical velocity component from jump
         outputVelocity.addInPlace(upWorld.scale(-outputVelocity.dot(upWorld)));
         outputVelocity.addInPlace(upWorld.scale(currentVelocity.dot(upWorld)));
+        
+        // Apply gravity
         outputVelocity.addInPlace(CONFIG.PHYSICS.CHARACTER_GRAVITY.scale(deltaTime));
 
         return outputVelocity;
