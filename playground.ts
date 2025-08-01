@@ -302,7 +302,7 @@ const ASSETS = {
                 jump: "gk_jump"
             },
             scale: 2.0,
-            mass: 3.0, // Heavier weight for zombie character
+            mass: 2.2,
             height: 3.0,
             radius: 1.2,
             speed: {
