@@ -278,9 +278,9 @@ const ASSETS = {
                 walk: "Run_InPlace",
                 jump: "Jump"
             },
-            scale: 1.25,
+            scale: 1.35,
             mass: 1.5, // Heavier weight for zombie character
-            height: 1.8,
+            height: 2.0,
             radius: 0.6,
             speed: {
                 inAir: 20.0, // Slower in air
