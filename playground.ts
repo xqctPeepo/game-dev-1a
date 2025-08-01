@@ -297,9 +297,9 @@ const ASSETS = {
             name: "Hulk",
             model: "https://raw.githubusercontent.com/EricEisaman/game-dev-1a/main/assets/models/characters/hulk/hulk.glb",
             animations: {
-                idle: "gk_idle",
-                walk: "slow_run",
-                jump: "gk_jump"
+                idle: "idle",
+                walk: "run",
+                jump: "jump"
             },
             scale: 2.0,
             mass: 2.2,
