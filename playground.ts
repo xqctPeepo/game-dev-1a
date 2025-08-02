@@ -6198,12 +6198,12 @@ class InventoryUI {
                 align-items: center;
                 justify-content: center;
                 cursor: pointer;
-                z-index: ${CONFIG.INVENTORY.BUTTON_Z_INDEX + 1};
-                transition: all 0.3s ease;
+                z-index: 9999;
+                transition: background-color 0.3s ease, border-color 0.3s ease;
                 font-size: 20px;
                 color: white;
                 backdrop-filter: blur(10px);
-            " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+            " onmouseover="this.style.background='rgba(0, 0, 0, 0.9)'; this.style.borderColor='rgba(255, 255, 255, 0.6)'" onmouseout="this.style.background='rgba(0, 0, 0, 0.7)'; this.style.borderColor='rgba(255, 255, 255, 0.3)'">
                 🎒
             </div>
         `;
@@ -6232,7 +6232,7 @@ class InventoryUI {
             background: rgba(0, 0, 0, 0.95);
             backdrop-filter: blur(20px);
             border-left: 2px solid rgba(255, 255, 255, 0.2);
-            z-index: ${CONFIG.INVENTORY.Z_INDEX};
+            z-index: 1000;
             transition: right 0.3s ease;
             color: white;
             font-family: Arial, sans-serif;
@@ -6445,10 +6445,9 @@ class InventoryUI {
             this.isPanelOpen = true;
             this.updateInventoryContent();
             this.updateInventoryButton();
-            // Keep the button visible and on top
-            this.inventoryButton!.style.transform = 'scale(1.1)';
+            // Keep the button visible and on top - no transform animation
             this.inventoryButton!.style.background = 'rgba(0, 0, 0, 0.9)';
-            this.inventoryButton!.style.zIndex = (CONFIG.INVENTORY.BUTTON_Z_INDEX + 1).toString();
+            this.inventoryButton!.style.zIndex = '9999';
         }
     }
 
@@ -6459,9 +6458,8 @@ class InventoryUI {
         if (this.inventoryPanel) {
             this.inventoryPanel.style.right = '-100%';
             this.isPanelOpen = false;
-            this.inventoryButton!.style.transform = 'scale(1)';
             this.inventoryButton!.style.background = 'rgba(0, 0, 0, 0.7)';
-            this.inventoryButton!.style.zIndex = (CONFIG.INVENTORY.BUTTON_Z_INDEX + 1).toString();
+            this.inventoryButton!.style.zIndex = '9999';
         }
     }
 
@@ -6510,6 +6508,9 @@ class InventoryUI {
             // Get the inner div that contains the backpack icon
             const innerDiv = this.inventoryButton.querySelector('div');
             if (innerDiv) {
+                // Ensure the button stays on top
+                innerDiv.style.zIndex = '9999';
+                
                 // Update styling based on whether there are items
                 if (totalItems > 0) {
                     innerDiv.style.opacity = '1';
