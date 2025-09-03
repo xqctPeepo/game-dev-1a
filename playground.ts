@@ -681,6 +681,39 @@ const CONFIG = {
                 }
             },
             {
+                title: "Fullpage",
+                uiElement: "toggle",
+                visibility: "iPadWithKeyboard",
+                defaultValue: false, // Default to non-fullpage mode
+                onChange: (value: boolean | string) => {
+                    if (typeof value === 'boolean') {
+                        // Toggle between fullpage and non-fullpage modes
+                        const currentUrl = window.location.href;
+                        if (value) {
+                            // Enable fullpage mode - add frame.html if not present
+                            if (!currentUrl.includes('frame.html')) {
+                                const hashIndex = currentUrl.indexOf('#');
+                                if (hashIndex !== -1) {
+                                    const baseUrl = currentUrl.substring(0, hashIndex);
+                                    const hash = currentUrl.substring(hashIndex);
+                                    const newUrl = baseUrl + 'frame.html' + hash;
+                                    window.location.href = newUrl;
+                                } else {
+                                    const newUrl = currentUrl + 'frame.html';
+                                    window.location.href = newUrl;
+                                }
+                            }
+                        } else {
+                            // Disable fullpage mode - remove frame.html if present
+                            if (currentUrl.includes('frame.html')) {
+                                const newUrl = currentUrl.replace('frame.html', '');
+                                window.location.href = newUrl;
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 title: "Character",
                 uiElement: "dropdown",
                 visibility: "all",
@@ -5923,11 +5956,14 @@ class SettingsUI {
             const sectionId = `section-${index}`;
 
             if (section.uiElement === 'toggle') {
-                // Get current state for mobile controls
+                // Get current state for toggles
                 let defaultValue = section.defaultValue as boolean ?? false;
                 if (section.title === "Screen Controls") {
                     // For Screen Controls, always default to true (visible) since controls are shown by default
                     defaultValue = true;
+                } else if (section.title === "Fullpage") {
+                    // For Fullpage toggle, detect current state from URL
+                    defaultValue = window.location.href.includes('frame.html');
                 }
 
                 sectionsHTML += `
@@ -6012,6 +6048,21 @@ class SettingsUI {
     private static setupToggleStateHandlers(): void {
         const toggleInputs = this.settingsPanel!.querySelectorAll('.toggle-switch input');
         toggleInputs.forEach(input => {
+            // Initialize toggle state based on current value
+            const target = input as HTMLInputElement;
+            const slider = target.nextElementSibling as HTMLElement;
+            const toggleCircle = slider.querySelector('span') as HTMLElement;
+            
+            // Set initial state
+            if (target.checked) {
+                slider.style.backgroundColor = 'rgba(0, 255, 136, 0.8)';
+                toggleCircle.style.transform = 'translateX(26px)';
+            } else {
+                slider.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                toggleCircle.style.transform = 'translateX(0)';
+            }
+
+            // Add change event listener
             input.addEventListener('change', (e) => {
                 const target = e.target as HTMLInputElement;
                 const slider = target.nextElementSibling as HTMLElement;
