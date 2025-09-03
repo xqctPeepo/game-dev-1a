@@ -2774,35 +2774,56 @@ class HUDManager {
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
             ('ontouchstart' in window) ||
             (navigator.maxTouchPoints > 0);
+        
+        // Detect iPad with keyboard
+        const isIPadWithKeyboard = this.isIPadWithKeyboard();
 
         // Update coordinates
-        if (isMobile ? CONFIG.HUD.MOBILE.SHOW_COORDINATES : CONFIG.HUD.SHOW_COORDINATES) {
+        if (isIPadWithKeyboard || (isMobile ? CONFIG.HUD.MOBILE.SHOW_COORDINATES : CONFIG.HUD.SHOW_COORDINATES)) {
             this.updateCoordinates();
+            this.setElementVisibility('coordinates', true);
+        } else {
+            this.setElementVisibility('coordinates', false);
         }
 
         // Update time
-        if (isMobile ? CONFIG.HUD.MOBILE.SHOW_TIME : CONFIG.HUD.SHOW_TIME) {
+        if (isIPadWithKeyboard || (isMobile ? CONFIG.HUD.MOBILE.SHOW_TIME : CONFIG.HUD.SHOW_TIME)) {
             this.updateTime();
+            this.setElementVisibility('time', true);
+        } else {
+            this.setElementVisibility('time', false);
         }
 
         // Update FPS
-        if (isMobile ? CONFIG.HUD.MOBILE.SHOW_FPS : CONFIG.HUD.SHOW_FPS) {
+        if (isIPadWithKeyboard || (isMobile ? CONFIG.HUD.MOBILE.SHOW_FPS : CONFIG.HUD.SHOW_FPS)) {
             this.updateFPS();
+            this.setElementVisibility('fps', true);
+        } else {
+            this.setElementVisibility('fps', false);
         }
 
         // Update state
-        if (isMobile ? CONFIG.HUD.MOBILE.SHOW_STATE : CONFIG.HUD.SHOW_STATE) {
+        if (isIPadWithKeyboard || (isMobile ? CONFIG.HUD.MOBILE.SHOW_STATE : CONFIG.HUD.SHOW_STATE)) {
             this.updateState();
+            this.setElementVisibility('state', true);
+        } else {
+            this.setElementVisibility('state', false);
         }
 
         // Update boost status
-        if (isMobile ? CONFIG.HUD.MOBILE.SHOW_BOOST_STATUS : CONFIG.HUD.SHOW_BOOST_STATUS) {
+        if (isIPadWithKeyboard || (isMobile ? CONFIG.HUD.MOBILE.SHOW_BOOST_STATUS : CONFIG.HUD.SHOW_BOOST_STATUS)) {
             this.updateBoostStatus();
+            this.setElementVisibility('boost', true);
+        } else {
+            this.setElementVisibility('boost', false);
         }
 
         // Update credits
-        if (isMobile ? CONFIG.HUD.MOBILE.SHOW_CREDITS : CONFIG.HUD.SHOW_CREDITS) {
+        if (isIPadWithKeyboard || (isMobile ? CONFIG.HUD.MOBILE.SHOW_CREDITS : CONFIG.HUD.SHOW_CREDITS)) {
             this.updateCredits();
+            this.setElementVisibility('credits', true);
+        } else {
+            this.setElementVisibility('credits', false);
         }
     }
 
@@ -3047,6 +3068,55 @@ class HUDManager {
         if (this.hudContainer) {
             this.hudContainer.style.display = visible ? 'flex' : 'none';
         }
+    }
+
+    /**
+     * Detects if the current device is an iPad with keyboard
+     * @returns true if iPad with keyboard is detected
+     */
+    private static isIPadWithKeyboard(): boolean {
+        // Check if it's an iPad first
+        if (!this.isIPad()) {
+            return false;
+        }
+
+        // Multiple detection methods for iPad with keyboard
+        const isLandscape = window.innerHeight < window.innerWidth;
+        const hasExternalKeyboard = this.detectExternalKeyboard();
+        const hasKeyboardEvents = this.detectKeyboardEvents();
+
+        // Show if any of these conditions are met
+        return isLandscape || hasExternalKeyboard || hasKeyboardEvents;
+    }
+
+    /**
+     * Detects if the current device is an iPad
+     * @returns true if iPad is detected
+     */
+    private static isIPad(): boolean {
+        return /iPad|Macintosh/.test(navigator.userAgent) && 
+               ('ontouchend' in document || navigator.maxTouchPoints > 0);
+    }
+
+    /**
+     * Detects external keyboard indicators
+     * @returns true if external keyboard is likely present
+     */
+    private static detectExternalKeyboard(): boolean {
+        // Check for external keyboard indicators
+        return navigator.maxTouchPoints === 0 ||
+            (navigator.maxTouchPoints === 1 && window.innerWidth > 1024);
+    }
+
+    /**
+     * Detects keyboard events (placeholder for future implementation)
+     * @returns false for now, can be enhanced later
+     */
+    private static detectKeyboardEvents(): boolean {
+        // Check if keyboard events have been detected recently
+        // This would require tracking keyboard events over time
+        // For now, we'll use a simpler approach
+        return false; // Placeholder for future keyboard event tracking
     }
 
     /**
