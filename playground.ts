@@ -1249,46 +1249,52 @@ class MobileInputManager {
     }
 
     /**
-     * Sets up canvas for full-screen mobile display
-     * @param canvas The canvas element
-     */
-    private static setupMobileCanvas(canvas: HTMLCanvasElement): void {
-        // Get the canvas container
-        const container = canvas.parentElement;
-        if (!container) return;
+ * Sets up the canvas for full-screen or half-screen mobile display,
+ * depending on whether "frame.html" is present in the URL.
+ * @param canvas The canvas element
+ */
+private static setupMobileCanvas(canvas: HTMLCanvasElement): void {
+    const container = canvas.parentElement;
+    if (!container) return;
 
-        // Set canvas to full screen on mobile
-        canvas.style.width = '100vw';
-        canvas.style.height = '100vh';
-        canvas.style.position = 'fixed';
-        canvas.style.top = '0';
-        canvas.style.left = '0';
-        canvas.style.zIndex = '1';
+    // Determine fullpage takeover based on URL
+    const fullpage = window.location.href.includes("frame.html");
 
-        // Ensure container doesn't interfere
-        container.style.width = '100vw';
-        container.style.height = '100vh';
-        container.style.position = 'fixed';
-        container.style.top = '0';
-        container.style.left = '0';
-        container.style.margin = '0';
-        container.style.padding = '0';
-        container.style.overflow = 'hidden';
-
-        // Prevent body scrolling on mobile
-        document.body.style.margin = '0';
-        document.body.style.padding = '0';
-        document.body.style.overflow = 'hidden';
-        document.body.style.position = 'fixed';
-        document.body.style.width = '100vw';
-        document.body.style.height = '100vh';
-
-        // Force canvas resize using window resize event
-        window.dispatchEvent(new Event('resize'));
-
-        // Handle orientation changes
-        this.setupOrientationHandler(canvas);
+    if(!fullpage) {
+        return; 
     }
+    // Apply width and height to canvas
+    canvas.style.width = '100vw';
+    canvas.style.height = '100vh';
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.zIndex = '1';
+
+    // Apply same width/height/position to container
+    container.style.width = '100vw';
+    container.style.height = '100vh';
+    container.style.position = 'fixed';
+    container.style.top = '0';
+    container.style.left = '0';
+    container.style.margin = '0';
+    container.style.padding = '0';
+    container.style.overflow = 'hidden';
+
+    // Prevent body scrolling/overflow
+    document.body.style.margin = '0';
+    document.body.style.padding = '0';
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100vw';
+    document.body.style.height = '100vh';
+
+    // Force a canvas resize immediately
+    window.dispatchEvent(new Event('resize'));
+
+    // Listen for device orientation changes and resize accordingly
+    this.setupOrientationHandler(canvas);
+}
 
     /**
      * Sets up orientation change handling for mobile
