@@ -681,39 +681,6 @@ const CONFIG = {
                 }
             },
             {
-                title: "Fullpage",
-                uiElement: "toggle",
-                visibility: "iPadWithKeyboard",
-                defaultValue: false, // Default to non-fullpage mode
-                onChange: (value: boolean | string) => {
-                    if (typeof value === 'boolean') {
-                        // Toggle between fullpage and non-fullpage modes
-                        const currentUrl = window.location.href;
-                        if (value) {
-                            // Enable fullpage mode - add frame.html if not present
-                            if (!currentUrl.includes('frame.html')) {
-                                const hashIndex = currentUrl.indexOf('#');
-                                if (hashIndex !== -1) {
-                                    const baseUrl = currentUrl.substring(0, hashIndex);
-                                    const hash = currentUrl.substring(hashIndex);
-                                    const newUrl = baseUrl + 'frame.html' + hash;
-                                    window.location.href = newUrl;
-                                } else {
-                                    const newUrl = currentUrl + 'frame.html';
-                                    window.location.href = newUrl;
-                                }
-                            }
-                        } else {
-                            // Disable fullpage mode - remove frame.html if present
-                            if (currentUrl.includes('frame.html')) {
-                                const newUrl = currentUrl.replace('frame.html', '');
-                                window.location.href = newUrl;
-                            }
-                        }
-                    }
-                }
-            },
-            {
                 title: "Character",
                 uiElement: "dropdown",
                 visibility: "all",
@@ -5792,85 +5759,38 @@ class SettingsUI {
             overflow-y: auto;
         `;
 
-        // Apply all styling using the centralized function
-        this.applySettingsPanelStyles();
-
-        document.body.appendChild(this.settingsPanel);
-
-        // Setup section event listeners
-        this.setupSectionEventListeners();
-
-        // Listen for orientation changes to re-evaluate section visibility
-        window.addEventListener('orientationchange', () => {
-            setTimeout(() => {
-                this.regenerateSections();
-            }, 100); // Small delay to ensure orientation change is complete
-        });
-
-        // Also listen for resize events
-        window.addEventListener('resize', () => {
-            this.regenerateSections();
-        });
-    }
-
-    /**
-     * Centralized function to apply all styling to the settings panel
-     * This ensures consistent styling both during initial creation and after regeneration
-     */
-    private static applySettingsPanelStyles(): void {
-        if (!this.settingsPanel) return;
-        
-        // Apply styles immediately for instant visual feedback
-        this.applySettingsPanelStylesImmediate();
-        
-        // Also apply with a small delay to catch any late-rendering elements
-        requestAnimationFrame(() => {
-            this.applySettingsPanelStylesImmediate();
-        });
-    }
-    
-    /**
-     * Internal method to apply styles immediately
-     */
-    private static applySettingsPanelStylesImmediate(): void {
-        if (!this.settingsPanel) return;
-
         // Style the header
         const header = this.settingsPanel.querySelector('.settings-header') as HTMLElement;
-        if (header) {
-            header.style.cssText = `
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                padding: 20px;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-                background: rgba(255, 255, 255, 0.05);
-                box-sizing: border-box;
-                max-width: 100%;
-            `;
-        }
+        header.style.cssText = `
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            box-sizing: border-box;
+            max-width: 100%;
+        `;
 
         // Style the header title
-        const headerTitle = header?.querySelector('h2') as HTMLElement;
-        if (headerTitle) {
-            headerTitle.style.cssText = `
-                margin: 0;
-                font-size: 24px;
-                font-weight: bold;
-                color: white;
-            `;
-        }
+        const headerTitle = header.querySelector('h2') as HTMLElement;
+        headerTitle.style.cssText = `
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        `;
+
+
 
         // Style the content area
         const content = this.settingsPanel.querySelector('.settings-content') as HTMLElement;
-        if (content) {
-            content.style.cssText = `
-                padding: 20px;
-                box-sizing: border-box;
-                max-width: 100%;
-                overflow-x: hidden;
-            `;
-        }
+        content.style.cssText = `
+            padding: 20px;
+            box-sizing: border-box;
+            max-width: 100%;
+            overflow-x: hidden;
+        `;
 
         // Style sections
         const sections = this.settingsPanel.querySelectorAll('.settings-section');
@@ -5957,6 +5877,23 @@ class SettingsUI {
                 cursor: pointer;
             `;
         });
+
+        document.body.appendChild(this.settingsPanel);
+
+        // Setup section event listeners
+        this.setupSectionEventListeners();
+
+        // Listen for orientation changes to re-evaluate section visibility
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                this.regenerateSections();
+            }, 100); // Small delay to ensure orientation change is complete
+        });
+
+        // Also listen for resize events
+        window.addEventListener('resize', () => {
+            this.regenerateSections();
+        });
     }
 
     private static regenerateSections(): void {
@@ -5968,9 +5905,6 @@ class SettingsUI {
         if (content) {
             content.innerHTML = sectionsHTML;
         }
-
-        // Re-apply all styling to ensure consistency
-        this.applySettingsPanelStyles();
 
         // Re-setup event listeners and toggle state handlers
         this.setupSectionEventListeners();
@@ -5989,14 +5923,11 @@ class SettingsUI {
             const sectionId = `section-${index}`;
 
             if (section.uiElement === 'toggle') {
-                // Get current state for toggles
+                // Get current state for mobile controls
                 let defaultValue = section.defaultValue as boolean ?? false;
                 if (section.title === "Screen Controls") {
                     // For Screen Controls, always default to true (visible) since controls are shown by default
                     defaultValue = true;
-                } else if (section.title === "Fullpage") {
-                    // For Fullpage toggle, detect current state from URL
-                    defaultValue = window.location.href.includes('frame.html');
                 }
 
                 sectionsHTML += `
@@ -6081,14 +6012,11 @@ class SettingsUI {
     private static setupToggleStateHandlers(): void {
         const toggleInputs = this.settingsPanel!.querySelectorAll('.toggle-switch input');
         toggleInputs.forEach(input => {
-            // Initialize toggle state based on current value
-            const target = input as HTMLInputElement;
-            const slider = target.nextElementSibling as HTMLElement;
-            const toggleCircle = slider?.querySelector('span') as HTMLElement;
-            
-            // Only proceed if both slider and toggleCircle exist
-            if (slider && toggleCircle) {
-                // Set initial state
+            input.addEventListener('change', (e) => {
+                const target = e.target as HTMLInputElement;
+                const slider = target.nextElementSibling as HTMLElement;
+                const toggleCircle = slider.querySelector('span') as HTMLElement;
+
                 if (target.checked) {
                     slider.style.backgroundColor = 'rgba(0, 255, 136, 0.8)';
                     toggleCircle.style.transform = 'translateX(26px)';
@@ -6096,24 +6024,7 @@ class SettingsUI {
                     slider.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
                     toggleCircle.style.transform = 'translateX(0)';
                 }
-
-                // Add change event listener
-                input.addEventListener('change', (e) => {
-                    const target = e.target as HTMLInputElement;
-                    const slider = target.nextElementSibling as HTMLElement;
-                    const toggleCircle = slider?.querySelector('span') as HTMLElement;
-
-                    if (slider && toggleCircle) {
-                        if (target.checked) {
-                            slider.style.backgroundColor = 'rgba(0, 255, 136, 0.8)';
-                            toggleCircle.style.transform = 'translateX(26px)';
-                        } else {
-                            slider.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
-                            toggleCircle.style.transform = 'translateX(0)';
-                        }
-                    }
-                });
-            }
+            });
         });
     }
 
@@ -6151,22 +6062,12 @@ class SettingsUI {
     }
 
     private static openPanel(): void {
-        // Set the panel state FIRST
-        this.isPanelOpen = true;
-        
-        // Update panel width to ensure proper sizing
-        this.updatePanelWidth();
-        
-        // Set the panel position
         this.settingsPanel!.style.left = '0px';
-        
-        // Ensure styles are fresh when opening the panel
-        this.applySettingsPanelStyles();
-        
+        this.isPanelOpen = true;
         // Keep the button visible and on top
         this.settingsButton!.style.transform = 'scale(1.1)';
         this.settingsButton!.style.background = 'rgba(0, 0, 0, 0.9)';
-        this.settingsButton!.style.zIndex = CONFIG.SETTINGS.BUTTON_Z_INDEX.toString();
+        this.settingsButton!.style.zIndex = CONFIG.SETTINGS.BUTTON_Z_INDEX.toString(); // Ensure button stays on top
     }
 
     private static closePanel(): void {
@@ -6198,18 +6099,10 @@ class SettingsUI {
             this.settingsPanel!.style.margin = '';
         }
 
-        // Only adjust left position if panel is closed to prevent interference with opening
         if (!this.isPanelOpen) {
             const currentWidth = this.settingsPanel!.style.width;
             this.settingsPanel!.style.left = `-${currentWidth}`;
         }
-    }
-
-    /**
-     * Force refresh the panel styles - useful for debugging or when styles seem to be missing
-     */
-    public static forceRefreshStyles(): void {
-        this.applySettingsPanelStyles();
     }
 
     public static dispose(): void {
